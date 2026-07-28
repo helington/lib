@@ -5,7 +5,7 @@ struct line {
     mutable int a, b, i;
 
     bool operator<(const line &o) const {
-        return tie(a, b) < tie(o.a, o.b);
+        return tie(a, b) < tie(o.a, o.b);//trocar aqui se for de minimo!
     }
 
     bool operator<(const int x) const {
