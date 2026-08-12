@@ -1,0 +1,94 @@
+const int MAXN = 2e5+7;
+
+struct llm{
+    ll a,b;
+};
+const ll MOD = 1e9+7;
+
+const ll ec = 5;
+
+ll mod_addi(ll a, ll b){
+    return ((a%MOD)+(b%MOD)+2*MOD)%MOD;
+}
+ll mod_subi(ll a, ll b){
+    return ((a%MOD)-(b%MOD)+2*MOD)%MOD;
+}
+
+llm mod_add(llm a, llm b){
+    return {mod_addi(a.a,b.a),mod_addi(a.b,b.b)};
+}
+
+llm mod_sub(llm a, llm b){
+    return {mod_subi(a.a,b.a),mod_subi(a.b,b.b)};
+}
+
+ll mod_mut(ll a, ll b){
+    return ((a%MOD)*(b%MOD))%MOD;
+}
+
+
+
+llm mod_mul(llm x, llm y){
+    return {mod_addi(mod_mut(x.a,y.a),mod_mut(x.b*ec,y.b)),mod_addi(mod_mut(x.b,y.a),mod_mut(x.a,y.b))};
+}
+
+llm fexp(llm a, ll b){
+    llm res = {1,0};
+    while(b){
+        if(b&1) res = mod_mul(res,a);
+        a=mod_mul(a,a);
+        b>>=1;
+    }
+    return res;
+}
+
+ll fexpi(ll a, ll b){
+    ll res = 1ll;
+    while(b){
+        if(b&1) res = mod_mut(res,a);
+        a=mod_mut(a,a);
+        b>>=1ll;
+    }
+    return res;
+}
+
+ll inv_modi(ll a){
+    return fexpi(a,MOD-2);
+}
+
+llm conj(llm a){
+    return {a.a,(MOD-a.b)%MOD};
+}
+
+llm inv_mod(llm a){
+    llm z = mod_mul(a,conj(a));
+    ll zi = z.a;
+    return mod_mul({inv_modi(zi),0},conj(a));
+}
+
+llm mod_div(llm a, llm b){
+    return mod_mul(a,inv_mod(b));
+}
+
+ll facti[MAXN], inv_facti[MAXN];
+llm fact[MAXN], inv_fact[MAXN];
+void precompute(){
+    facti[0] = inv_facti[0] = 1;
+    for(int i=1;i<MAXN;i++){
+        facti[i] = (facti[i-1]*i)%MOD;
+        inv_facti[i] = inv_modi(facti[i]);
+    }
+    for(int i=1;i<MAXN;i++){
+        fact[i] = {facti[i],0};
+        inv_fact[i] = {inv_facti[i],0};
+    }
+}
+
+ll binomiali(ll n, ll k){
+    if(k>n||k<0) return 0;
+    return mod_mut(mod_mut(facti[n],inv_facti[k]),inv_facti[n-k]);
+}
+
+llm binomial(ll n, ll k){
+    return {binomiali(n,k),0};
+}
