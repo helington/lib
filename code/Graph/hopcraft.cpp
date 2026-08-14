@@ -33,8 +33,26 @@ struct HopcroftKarp {
     }
     return d[0] != inf;
   }
-
-
+  bool dfs(int u) {
+    if (!u) return true;
+    for (auto v : g[u]) {
+      if(d[r[v]] == d[u] + 1 && dfs(r[v])) {
+        l[u] = v;
+        r[v] = u;
+        return true;
+      }
+    }
+    d[u] = inf;
+    return false;
+  }
+  int maximum_matching() {
+    int ans = 0;
+    while (bfs()) {
+      for(int u = 1; u <= n; u++) if (!l[u] && dfs(u)) ans++;
+    }
+    return ans;
+  }
+};
 
 
 // Algorithm: Hopcroft-Karp, Encontra o maior matching em um grafo bipartido. Big o(E * V^0.5)
