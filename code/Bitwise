@@ -1,0 +1,74 @@
+struct XorBasis {
+    static const int LOG = 60;
+
+    ll basis[LOG + 1]{};
+    int sz = 0;
+
+    bool insert(ll x) {
+        for (int i = LOG; i >= 0; i--) {
+            if (!(x & (1LL << i))) continue;
+
+            if (!basis[i]) {
+                basis[i] = x;
+                sz++;
+                return true;
+            }
+
+            x ^= basis[i];
+        }
+
+        return false;
+    }
+
+    bool can(ll x) {
+        for (int i = LOG; i >= 0; i--) {
+            if (!(x & (1LL << i))) continue;
+
+            if (!basis[i])
+                return false;
+
+            x ^= basis[i];
+        }
+
+        return true;
+    }
+
+    ll getMax() {
+        ll ans = 0;//se quiser maximizar um certo x^subconj da base, use ans = x
+
+        for (int i = LOG; i >= 0; i--)
+            ans = max(ans, ans ^ basis[i]);
+
+        return ans;
+    }
+
+
+    void reduce() {
+        for (int i = 0; i <= LOG; i++) {
+            if (!basis[i]) continue;
+
+            for (int j = i + 1; j <= LOG; j++) {
+                if (basis[j] & (1LL << i))
+                    basis[j] ^= basis[i];
+            }
+        }
+
+        v.clear();
+
+        for (int i = 0; i <= LOG; i++) {
+            if (basis[i])
+                v.push_back(basis[i]);
+        }
+    }
+
+    ll kth(ll k) {
+        ll ans = 0;
+
+        for (int i = 0; i < sz; i++) {
+            if (k & (1LL << i))
+                ans ^= v[i];
+        }
+
+        return ans;
+    }
+};
