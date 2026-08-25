@@ -3,6 +3,7 @@ struct XorBasis {
 
     ll basis[LOG + 1]{};
     int sz = 0;
+    vector<ll> v;
 
     bool insert(ll x) {
         for (int i = LOG; i >= 0; i--) {
@@ -61,7 +62,7 @@ struct XorBasis {
         }
     }
 
-    ll kth(ll k) {
+    ll kth(ll k) {  //ZERO INDEXADO!!!
         ll ans = 0;
 
         for (int i = 0; i < sz; i++) {
