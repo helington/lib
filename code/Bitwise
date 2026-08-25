@@ -72,4 +72,12 @@ struct XorBasis {
 
         return ans;
     }
+    
+    void merge(const XorBasis &o) {
+        for (int i = LOG; i >= 0; i--) {
+            if (o.b[i])
+                insert(o.b[i]);
+        }
+    }
+
 };
