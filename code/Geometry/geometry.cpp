@@ -66,6 +66,89 @@ bool isInside(const vector<Point> &hull, Point pt) {
     return cross(v0,v1) >= 0;
 }
 
+bool inTriangle(const Point &p, const Point &a, const Point &b, const Point &c){
+    double c1 = cross(b-a, p-a);
+    double c2 = cross(c-b, p-b);
+    double c3 = cross(a-c, p-c);
+
+    return cmp(c1, 0) >= 0 && cmp(c2, 0) >= 0 && cmp(c3, 0) >= 0;
+}
+
+vector<array<int,3>> triangulate(const vector<Point>& p){
+    int n = p.size();
+
+    // ordem dos vertices do poligono
+    vector<int> v(n);
+    iota(v.begin(), v.end(), 0);
+
+    // garantir sentido anti-horario
+    double area = 0;
+    for(int i = 0; i < n; i++){
+        area += cross(p[i], p[(i+1)%n]);
+    }
+
+    if(cmp(area, 0) < 0){
+        reverse(v.begin(), v.end());
+    }
+
+    vector<array<int,3>> ans;
+
+    while(v.size() > 3){
+        int m = v.size();
+        bool achou = false;
+
+        for(int i = 0; i < m; i++){
+            int ia = v[(i-1+m)%m];
+            int ib = v[i];
+            int ic = v[(i+1)%m];
+
+            Point a = p[ia];
+            Point b = p[ib];
+            Point c = p[ic];
+
+            // B precisa ser um vertice estritamente convexo
+            if(cmp(cross(b-a, c-b), 0) <= 0){
+                continue;
+            }
+
+            bool ok = true;
+
+            // nenhum outro vertice pode estar dentro
+            // (ou na borda) do triangulo
+            for(int j = 0; j < m; j++){
+                int id = v[j];
+
+                if(id == ia || id == ib || id == ic){
+                    continue;
+                }
+
+                if(inTriangle(p[id], a, b, c)){
+                    ok = false;
+                    break;
+                }
+            }
+
+            if(ok){
+                ans.push_back({ia, ib, ic});
+                v.erase(v.begin()+i);
+                achou = true;
+                break;
+            }
+        }
+
+        // poligono degenerado / problema numerico
+        if(!achou){
+            break;
+        }
+    }
+
+    if(v.size() == 3){
+        ans.push_back({v[0], v[1], v[2]});
+    }
+
+    return ans;
+}
+
 //CUIDADO COM O CASO COLINEARES!!!
 vector<Point> convexhull(vector<Point>& pts, bool sorted = false){ // pts.size() >= 3
     int n = pts.size();
