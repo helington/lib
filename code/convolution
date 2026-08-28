@@ -145,7 +145,76 @@ vector<ll> subset_multiply(vector<ll> a, vector<ll> b){
 
 	return ans;
 }
-//GCD:
+
+//GCD sem MOD:
+// GCD:
+template<typename T>
+vector<T> gcdConvolution(vector<T> a, vector<T> b)
+{
+    int n = a.size()-1;
+
+    vector<T> A(n+1);
+    vector<T> B(n+1);
+    vector<T> D(n+1);
+
+    for(int i=1;i<=n;i++)
+    {
+        for(int j=i;j<=n;j+=i)
+        {
+            A[i] += a[j];
+            B[i] += b[j];
+        }
+
+        D[i] = A[i] * B[i];
+    }
+
+    vector<T> d(n+1);
+
+    for(int i=n;i>=1;i--)
+    {
+        d[i] = D[i];
+
+        for(int j=2*i;j<=n;j+=i)
+            d[i] -= d[j];
+    }
+
+    return d;
+}
+
+//LCM sem MOD:
+// LCM:
+template<typename T>
+vector<T> lcmConvolution(vector<T> a, vector<T> b)
+{
+    int n = a.size()-1;
+
+    vector<T> A(n+1);
+    vector<T> B(n+1);
+    vector<T> D(n+1);
+
+    for(int i=1;i<=n;i++)
+    {
+        for(int j=i;j<=n;j+=i)
+        {
+            A[j] += a[i];
+            B[j] += b[i];
+        }
+    }
+
+    for(int i=1;i<=n;i++)
+        D[i] = A[i] * B[i];
+
+    vector<T> d = D;
+
+    for(int i=1;i<=n;i++)
+    {
+        for(int j=2*i;j<=n;j+=i)
+            d[j] -= d[i];
+    }
+
+    return d;
+}
+//GCD MOD:
 template<typename T>
 vector<T> gcdConvolution(vector<T> a, vector<T> b, T mod)
 {
@@ -185,7 +254,7 @@ vector<T> gcdConvolution(vector<T> a, vector<T> b, T mod)
     return d;
 }
 
-//LCM:
+//LCM MOD:
 template<typename T>
 vector<T> lcmConvolution(vector<T> a, vector<T> b, T mod)
 {
