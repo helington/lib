@@ -292,3 +292,55 @@ vector<T> lcmConvolution(vector<T> a, vector<T> b, T mod)
 
     return d;
 }
+//O(n), mas é só umas psum, basta pensar
+//Max convolution:
+template<typename T>
+vector<T> maxConvolution(vector<T> a, vector<T> b)
+{
+    int n = a.size()-1;
+
+    vector<T> A(n+1);
+    vector<T> B(n+1);
+    vector<T> D(n+1);
+
+    for(int i=1;i<=n;i++)
+    {
+        A[i] = A[i-1] + a[i];
+        B[i] = B[i-1] + b[i];
+
+        D[i] = A[i] * B[i];
+    }
+
+    vector<T> d(n+1);
+
+    for(int i=1;i<=n;i++)
+        d[i] = D[i] - D[i-1];
+
+    return d;
+}
+
+//min:
+template<typename T>
+vector<T> minConvolution(vector<T> a, vector<T> b)
+{
+    int n = a.size()-1;
+
+    vector<T> A(n+2);
+    vector<T> B(n+2);
+    vector<T> D(n+2);
+
+    for(int i=n;i>=1;i--)
+    {
+        A[i] = A[i+1] + a[i];
+        B[i] = B[i+1] + b[i];
+
+        D[i] = A[i] * B[i];
+    }
+
+    vector<T> d(n+1);
+
+    for(int i=n;i>=1;i--)
+        d[i] = D[i] - D[i+1];
+
+    return d;
+}
