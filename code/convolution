@@ -1,5 +1,5 @@
 //Todas são n*log(n), menos a subset, que é n*log²(n)
-//FWHT:
+//FWHT sem MOD:
 template<const char op> 
 vector<ll> FWHT(vector<ll> a, const bool inv = false){
 	int n = a.size();
@@ -23,12 +23,12 @@ vector<ll> multiply(vector<ll> a, vector<ll> b){
   a = FWHT<op>(a); b = FWHT<op>(b);
   
   vector<ll> ans(n);
-  for(int i=0; i<n; i++) ans[i] = a[i]*b[i] % mod;
+  for(int i=0; i<n; i++) ans[i] = a[i]*b[i];
   ans = FWHT<op>(ans, true);
   return ans;
 }
- 
 
+//Subset convolution, conta o somatório quando A e B são disjuntos e a união é C.(em bitmask, óbvio)
 const int mxlog = 17;
 vector<ll> subset_multiply(vector<ll> a, vector<ll> b){ //OPTIONAL
 	int n = 1; while(n < max(a.size(), b.size())) n <<= 1;
@@ -49,7 +49,102 @@ vector<ll> subset_multiply(vector<ll> a, vector<ll> b){ //OPTIONAL
 	}
 	return ans;
 }
+ 
+//FWHT mod:
+template<const char op> 
+vector<ll> FWHT(vector<ll> a, const bool inv = false){
+	int n = a.size();
 
+	for(int len=1; len<n; len+=len)
+		for(int i=0; i<n; i+=2*len)
+			for(int j=0; j<len; j++){
+				ll u = a[i+j], v = a[i+j+len];
+
+				if(op == '^'){
+					a[i+j] = (u+v)%MOD;
+					a[i+j+len] = (u-v+MOD)%MOD;
+				}
+
+				if(op == '|')
+					a[i+j+len] = (v + (inv ? -u : u) + MOD)%MOD;
+
+				if(op == '&')
+					a[i+j] = (u + (inv ? -v : v) + MOD)%MOD;
+			}
+
+	if(op=='^' && inv){
+		ll invn = inv_mod(n);
+		for(auto &x : a)
+			x = x*invn%MOD;
+	}
+
+	return a;
+}
+ 
+template<const char op> 
+vector<ll> multiply(vector<ll> a, vector<ll> b){
+	int n=1;
+	while(n < max(a.size(), b.size()))
+		n*=2;
+
+	a.resize(n, 0);
+	b.resize(n, 0);
+
+	a = FWHT<op>(a);
+	b = FWHT<op>(b);
+
+	vector<ll> ans(n);
+
+	for(int i=0; i<n; i++)
+		ans[i] = a[i]*b[i]%MOD;
+
+	ans = FWHT<op>(ans, true);
+
+	return ans;
+}
+
+
+//subset conv mod:
+vector<ll> subset_multiply(vector<ll> a, vector<ll> b){
+	int n = 1;
+	while(n < max(a.size(), b.size()))
+		n <<= 1;
+
+	a.resize(n, 0);
+	b.resize(n, 0);
+
+	int lg = __builtin_ctz(n);
+
+	vector<ll> ans(n, 0);
+	vector A(lg+1, vector<ll>(n));
+	vector B(lg+1, vector<ll>(n));
+
+	for(int i=0; i<n; i++){
+		A[__builtin_popcount(i)][i] = a[i] % MOD;
+		B[__builtin_popcount(i)][i] = b[i] % MOD;
+	}
+
+	for(int i=0; i<=lg; i++){
+		A[i] = FWHT<'|'>(A[i]);
+		B[i] = FWHT<'|'>(B[i]);
+	}
+
+	for(int i=0; i<=lg; i++){
+		vector<ll> C(n, 0);
+
+		for(int x=0; x<=i; x++)
+			for(int j=0; j<n; j++)
+				C[j] = (C[j] + A[x][j] * B[i-x][j]) % MOD;
+
+		C = FWHT<'|'>(C, true);
+
+		for(int j=0; j<n; j++)
+			if(__builtin_popcount(j) == i)
+				ans[j] = C[j];
+	}
+
+	return ans;
+}
 //GCD:
 template<typename T>
 vector<T> gcdConvolution(vector<T> a, vector<T> b, T mod)
